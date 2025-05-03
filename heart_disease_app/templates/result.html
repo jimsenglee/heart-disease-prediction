@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ content.result_title|default('Prediction Result') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container result-container">
+        <!-- Language selector -->
+        <div class="language-selector">
+            <form id="languageForm" method="post" action="{{ url_for('set_language') }}">
+                <select name="lang" id="languageSelect" onchange="changeLanguage()">
+                    {% for code, name in languages.items() %}
+                        <option value="{{ code }}" {% if code == current_lang %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        
+        <header>
+            <h1>{{ content.result_title|default('Heart Disease Prediction Results') }}</h1>
+        </header>
+        
+        <div class="result-card {% if prediction == 1 %}warning{% else %}healthy{% endif %}">
+            <div class="result-icon">
+                {% if prediction == 1 %}
+                    <span class="icon">⚠️</span>
+                {% else %}
+                    <span class="icon">✅</span>
+                {% endif %}
+            </div>
+            
+            <div class="result-details">
+                <h2>
+                    {% if prediction == 1 %}
+                        {{ content.disease_detected|default('Heart Disease Detected') }}
+                    {% else %}
+                        {{ content.no_disease_detected|default('No Heart Disease Detected') }}
+                    {% endif %}
+                </h2>
+                
+                <p class="model-info">{{ content.model_used|default('Model used:') }} {{ model_name }}</p>
+                
+                <!-- Always show probability meter -->
+                <div class="probability-meter">
+                    {% if probability is not none %}
+                        <p>{{ content.risk_probability|default('Risk probability:') }} {{ probability }}%</p>
+                        <div class="meter">
+                            <div class="meter-fill" data-width="{{ probability }}"></div>
+                        </div>
+                    {% else %}
+                        <!-- If no probability is provided by model, use estimated value based on prediction -->
+                        <p>{{ content.risk_probability|default('Risk probability:') }} {{ content.unknown_probability|default('Unknown (Model doesn\'t provide probabilities)') }}</p>
+                        <div class="meter">
+                            <div class="meter-fill" data-width="0"></div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="recommendation">
+                    <h3>{{ content.recommendation_title|default('Recommendation:') }}</h3>
+                    {% if prediction == 1 %}
+                        <p>{{ content.positive_recommendation|default('Please consult with a cardiologist as soon as possible for further evaluation and treatment options.') }}</p>
+                    {% else %}
+                        <p>{{ content.negative_recommendation|default('Continue maintaining a healthy lifestyle with regular exercise and balanced diet. Schedule routine check-ups as recommended by your healthcare provider.') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="{{ url_for('home') }}" class="button">{{ content.another_prediction|default('Make Another Prediction') }}</a>
+        </div>
+    </div>
+    
+    <script>
+    function changeLanguage() {
+        document.getElementById('languageForm').submit();
+    }
+    
+    // Set the meter fill width based on the data-width attribute
+    document.addEventListener('DOMContentLoaded', function() {
+        const meterFill = document.querySelector('.meter-fill');
+        if (meterFill) {
+            const width = meterFill.getAttribute('data-width');
+            meterFill.style.width = width + '%';
+        }
+    });
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

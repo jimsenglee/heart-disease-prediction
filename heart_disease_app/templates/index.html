@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ content.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Language selector -->
+        <div class="language-selector">
+            <form id="languageForm" method="post" action="{{ url_for('set_language') }}">
+                <select name="lang" id="languageSelect" onchange="changeLanguage()">
+                    {% for code, name in languages.items() %}
+                    <option value="{{ code }}" {% if code==current_lang %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <header>
+            <h1>{{ content.title }}</h1>
+            <p class="subtitle">{{ content.subtitle }}</p>
+        </header>
+
+        {% if errors %}
+        <div class="error-container">
+            <h3 style="color: #cc0000;">Please fix the following errors:</h3>
+            <ul>
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="form-container">
+            <form action="{{ url_for('predict') }}" method="post">
+                <!-- Model selection -->
+                <div class="form-section">
+                    <h2>{{ content.model_selection }}</h2>
+                    <div class="model-selection">
+                        <label for="model">{{ content.choose_model }}</label>
+                        <select name="model" id="model" required>
+                            <option value="svm">{{ content.svm }}</option>
+                            <option value="rf">{{ content.rf }}</option>
+                            <option value="lr">{{ content.lr }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Numerical Measurements (Sliders) -->
+                <div class="form-section">
+                    <h2>{{ content.numerical }}</h2>
+                    <!-- age -->
+                    <div class="form-group">
+                        <label for="age">{{ content.age_label }}</label>
+                        <input type="range" id="age" name="age" min="20" max="100" value="59" class="color-slider"
+                            oninput="ageOutput.value = age.value">
+                        <output id="ageOutput">59</output>
+                    </div>
+
+                    <!-- trestbps -->
+                    <div class="form-group">
+                        <label for="trestbps">{{ content.trestbps_label }}</label>
+                        <input type="range" id="trestbps" name="trestbps" min="80" max="200" value="164"
+                            class="color-slider" oninput="bpOutput.value = trestbps.value">
+                        <output id="bpOutput">164</output>
+                    </div>
+
+                    <!-- chol -->
+                    <div class="form-group">
+                        <label for="chol">{{ content.chol_label }}</label>
+                        <input type="range" id="chol" name="chol" min="100" max="400" value="176" class="color-slider"
+                            oninput="cholOutput.value = chol.value">
+                        <output id="cholOutput">176</output>
+                    </div>
+
+                    <!-- thalach -->
+                    <div class="form-group">
+                        <label for="thalach">{{ content.thalach_label }}</label>
+                        <input type="range" id="thalach" name="thalach" min="70" max="220" value="140"
+                            class="color-slider" oninput="hrOutput.value = thalach.value">
+                        <output id="hrOutput">90</output>
+                    </div>
+
+                    <!-- oldpeak -->
+                    <div class="form-group">
+                        <label for="oldpeak">{{ content.oldpeak_label }}</label>
+                        <input type="range" id="oldpeak" name="oldpeak" min="0" max="6" step="0.1" value="1.0"
+                            class="color-slider" oninput="stOutput.value = oldpeak.value">
+                        <output id="stOutput">1.0</output>
+                    </div>
+                </div>
+
+                <!-- Binary Features (Radio Buttons) -->
+                <div class="form-section">
+                    <h2>{{ content.binary }}</h2>
+                    <!-- sex -->
+                    <div class="form-group">
+                        <label>{{ content.sex_label}}</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="sex" value="1" checked> {{ content.m }}</label>
+                            <label><input type="radio" name="sex" value="0"> {{ content.f }}</label>
+                        </div>
+                    </div>
+
+                    <!-- fbs -->
+                    <div class="form-group">
+                        <label>{{ content.fbs_label }}</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="fbs" value="0"> {{ content.n }}</label>
+                            <label><input type="radio" name="fbs" value="1" checked> {{ content.y }}</label>
+                        </div>
+                    </div>
+
+                    <!-- exang -->
+                    <div class="form-group">
+                        <label>{{ content.exang_label }}</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="exang" value="0" checked> {{ content.n }}</label>
+                            <label><input type="radio" name="exang" value="1"> {{ content.y }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categorical Features (Dropdowns) -->
+                <div class="form-section">
+                    <h2>{{ content.categorical }}</h2>
+                    <!-- cp -->
+                    <div class="form-group">
+                        <label for="cp">{{ content.cp_label}}</label>
+                        <select name="cp" id="cp">
+                            <option value="0">{{ content.np }}</option>
+                            <option value="1">{{ content.ta }}</option>
+                            <option value="2">{{ content.aa }}</option>
+                            <option value="3">{{ content.nap }}</option>
+                            <option value="4">{{ content.asy }}</option>
+                        </select>
+                    </div>
+
+                    <!-- restecg -->
+                    <div class="form-group">
+                        <label for="restecg">{{ content.restecg_label }}</label>
+                        <select name="restecg" id="restecg">
+                            <option value="0">{{ content.normal }}</option>
+                            <option value="1">{{ content.stt }}</option>
+                            <option value="2">{{ content.lvh }}</option>
+                        </select>
+                    </div>
+
+                    <!-- slope -->
+                    <div class="form-group">
+                        <label for="slope">{{ content.slope_label}}</label>
+                        <select name="slope" id="slope">
+                            <option value="0">{{ content.u }}</option>
+                            <option value="1">{{ content.fl }}</option>
+                            <option value="2">{{ content.d }}</option>
+                        </select>
+                    </div>
+
+                    <!-- ca -->
+                    <div class="form-group">
+                        <label for="ca">{{ content.ca_label }}</label>
+                        <select name="ca" id="ca">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+
+                    <!-- thal -->
+                    <div class="form-group">
+                        <label for="thal">{{ content.thal_label }}</label>
+                        <select name="thal" id="thal">
+                            <option value="0">{{ content.normal }}</option>
+                            <option value="1">{{ content.fd }}</option>
+                            <option value="2">{{ content.rd }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="predict-button">{{ content.predict_button }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function changeLanguage() {
+            document.getElementById('languageForm').submit();
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
