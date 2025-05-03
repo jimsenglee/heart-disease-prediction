@@ -1,4 +1,4 @@
-# Heart Disease Prediction
+# Heart Disease Prediction (DataTraning folder)
 
 Heart Disease Prediction System using Logistic Regression, SVM, and Random Forest.
 
@@ -62,3 +62,24 @@ Each model is trained, tuned, and evaluated to identify the best-performing algo
 ## Results
 
 The project provides a detailed comparison of model performance, including metrics and visualizations, to help identify the most effective model for heart disease prediction.
+
+
+## User Interface (heart_disease_app folder)
+## Steps to Run the Application
+
+1. **Open the project in Visual Studio Code**  
+   Open the folder `heart-disease-prediction-app` in Visual Studio Code.
+
+2. **Launch Anaconda Prompt**  
+   Click on the **Start Menu** and search for `Anaconda Prompt`. Open it.
+
+3. **Navigate to the project directory**  
+   Use the `cd` command to navigate to your project folder. Replace `"Your project file path"` with the actual path to your project:
+   ```bash
+   cd "Your project file path"
+
+   pip install googletrans==4.0.0-rc1
+
+   python app.py
+
+   http://127.0.0.1:5000/
